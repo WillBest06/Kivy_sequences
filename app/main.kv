@@ -1,11 +1,59 @@
-<RootWidget>:
+#:kivy 2.3.1
+
+RootWidget:
     orientation: "vertical"
     padding: 20
     spacing: 20
 
+    HeaderWidget:
+        id: header
+        size_hint_y: 0.2
+
+    ContentWidget:
+        size_hint_y: 0.6
+
+    FooterWidget:
+        size_hint_y:0.2
+
+<HeaderWidget>:
+    orientation: "horizontal"
+    height: "120dp"
+    spacing: 10
+
+    ProgressBar:
+        size_hint_x: 0.25
+        max: 100
+        value: 25
+
     Label:
-        text: "Hello"
+        size_hint_x: 0.5
+        text: "Sequence Game"
+        font_size: "24sp"
+
+    Label:
+        id: stopwatch_label
+        size_hint_x: 0.25
+        text: "0.00"
+        font_size: "24sp"
+
+<ContentWidget>:
+    orientation: "horizontal"
+    height: "120dp"
+    spacing: 10
+    opacity: 0
+    disabled: True
+
+    Label:
+        text: "Content"
+        font_size: "24sp"
+
+<FooterWidget>:
+    orientation: "horizontal"
+    size_hint_y: None
+    height: "120dp"
+    spacing: 10
 
     Button:
-        text: "Null"
+        text: "Start"
         font_size: "24sp"
+        on_press: app.root.ids.header.start_stopwatch()
