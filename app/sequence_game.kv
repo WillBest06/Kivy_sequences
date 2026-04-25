@@ -1,0 +1,68 @@
+#:kivy 2.3.1
+
+RootWidget:
+    orientation: "vertical"
+    padding: 20
+    spacing: 20
+
+    # Your modular widgets are assembled here
+    HeaderWidget:
+        size_hint_y: 0.2
+
+    ContentWidget:
+        id: content_area
+        size_hint_y: 0.6
+
+        Label:
+            id: status_text
+            
+
+    FooterWidget:
+        size_hint_y: 0.2
+
+# --- WIDGET DEFINITIONS ---
+
+<HeaderWidget>:
+    orientation: "horizontal"
+    spacing: 10
+
+    ProgressBar:
+        size_hint_x: 0.25
+        max: 100
+        value: app.progress_value
+
+    Label:
+        size_hint_x: 0.5
+        text: "Sequence Game"
+        font_size: "24sp"
+
+    Label:
+        size_hint_x: 0.25
+        text: app.stopwatch_text
+        font_size: "24sp"
+
+<ContentWidget>:
+    orientation: "horizontal"
+    spacing: 10
+
+<FooterWidget>:
+    orientation: "horizontal"
+
+    Button:
+        # Looks entirely to Python for what this text should be
+        text: app.toggle_text  
+        font_size: "24sp"
+        # Purely triggers the Python function, no inline logic
+        on_press: app.toggle_stopwatch()
+
+<SequenceItem>:
+    # We add some padding so the squares have gaps between them
+    padding: 10
+    
+    Button:
+        # The button reads the property from the SequenceItem (root)
+        text: str(root.val)
+        font_size: "32sp"
+        
+        # When clicked, it sends its number to the main app to check
+        on_press: app.check_sequence_click(root.val, root)
