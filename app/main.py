@@ -6,32 +6,7 @@ from kivy.clock import Clock
 from kivy.properties import StringProperty, NumericProperty, ListProperty
 from kivy.lang import Builder
 import random
-
-
-# ------------- SEQUENCE CHALLENGE CLASSES ----------------------
-
-class SequenceChallenge:
-    def __init__(self, prompt_text):
-        self.prompt_text = prompt_text
-
-    def generate_sequence(self):
-        raise NotImplementedError("Subclasses need their own generate_sequence function")
-
-class NumberChallenge(SequenceChallenge):
-    def __init__(self):
-        super().__init__("Click the numbers in ascending order!")
-
-    def generate_sequence(self):
-        start_num = random.randint(1, 20)
-        return [str(i) for i in range(start_num, start_num + 5)]
-
-class LetterChallenge(SequenceChallenge):
-    def __init__(self):
-        super().__init__("Click the letters in alphabetical order!")
-
-    def generate_sequence(self):
-        return ["h", "i", "j", "k", "l"]
-
+from sequence_challenges import NumberChallenge, ReverseNumberChallenge, LetterChallenge
 
 # -------------- UI WIDGETS & SCREENS --------------------------
 
@@ -64,7 +39,7 @@ class SequenceItem(BoxLayout):
 class MainApp(App):
     stopwatch_text = StringProperty("00:00.0")
     toggle_text = StringProperty("Start")
-    status_text = StringProperty("Press Start to Begin")
+    status_text = StringProperty()
     level_text = StringProperty("Level: 1")
     progress_value = NumericProperty(0)
     challenge_times = ListProperty()
@@ -81,7 +56,8 @@ class MainApp(App):
         
         self.challenges = [
             NumberChallenge(),
-            LetterChallenge()
+            LetterChallenge(),
+            ReverseNumberChallenge()
         ]
 
     #--------------------------- STATE ROUTING --------------------------------
@@ -108,7 +84,6 @@ class MainApp(App):
         self.root.current = "start"
         self.time_elapsed = 0.0
         self.stopwatch_text = "00:00.0"
-        self.status_text = "Press Start to Begin"
         self.progress_value = 0
 
     #--------------------------- STOPWATCH & INTERMISSION ----------------------
@@ -151,16 +126,20 @@ class MainApp(App):
     # ------------------------------ GAME LOGIC ---------------------------------
 
     def load_challenge(self):
-        # We now access the content area through the GameScreen object
-        content = self.root.get_screen("game").ids.content_area
+        # We drill down one level deeper into the ContentWidget's IDs!
+        content = self.root.get_screen("game").ids.content_area.ids.sequence_row
         content.clear_widgets()
+
+        # checks if game has been won
+        if self.current_level > len(self.challenges):
+            self.open_victory_screen()
+            return
 
         current_challenge = self.challenges[self.current_level - 1]
         
-        self.level_text = f"Level: {self.current_level} / {len(self.challenges)}"
         self.status_text = current_challenge.prompt_text
-        
         sequence = current_challenge.generate_sequence()
+        
         self.expected_sequence = sequence.copy()
         random.shuffle(sequence)
 
@@ -168,20 +147,23 @@ class MainApp(App):
             widget = SequenceItem(val=item)
             content.add_widget(widget)
 
-    def check_sequence_click(self, clicked_value, widget_instance):
+        self.level_text = f"Level: {self.current_level}"
+
+    def check_answer(self, clicked_value, widget_instance):
         if not self.running or not self.expected_sequence or self.in_intermission:
             return 
 
         if clicked_value != self.expected_sequence[0]:
             self.wrong_guesses += 1
-            self.status_text = "Wrong order! Try again."
+            self.status_text = f"{clicked_value} was incorrect! Try again."
             return
 
         self.expected_sequence.pop(0)
         widget_instance.opacity = 0
         widget_instance.disabled = True
+        self.status_text = f"{clicked_value} was correct!"
         
-        # When the user FINISHES a sequence:
+        # proceeds when the user has finished the sequence
         if len(self.expected_sequence) == 0:
             self.challenge_times.append(self.time_elapsed)
             self.progress_value += (100 / len(self.challenges))
@@ -199,8 +181,8 @@ class MainApp(App):
             self.status_text = "Round Complete!\nTake a breath."
             self.toggle_text = "Next Round"
             
-            # 3. Clear the board so they see the screen is empty
-            self.root.get_screen("game").ids.content_area.clear_widgets()
+            # 3. Clear ONLY the sequence row so the status text stays visible!
+            self.root.get_screen("game").ids.content_area.ids.sequence_row.clear_widgets()
 
     def open_victory_screen(self):
         # Ensure clock is stopped

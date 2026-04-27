@@ -23,7 +23,7 @@ ScreenManager:
             size_hint_y: 0.4
 
         Label:
-            text: "Rules:\n1. Click the items in ascending order.\n2. Do it as fast as you can!\n3. Beat all levels to win."
+            text: "Rules:\n1. Click the items in the correct order.\n2. Do it as fast as you can!\n3. Beat all levels to win.\n4. Lower scores are better."
             font_size: "24sp"
             halign: "center"
             size_hint_y: 0.4
@@ -32,6 +32,7 @@ ScreenManager:
             text: "Begin Game"
             font_size: "32sp"
             size_hint_y: 0.2
+            background_color: 0, 1, 0, 1
             on_press: app.start_game()
 
 # ----------------- SCREEN 2: GAME SCREEN -----------------
@@ -78,12 +79,26 @@ ScreenManager:
                 id: victory_stats
                 orientation: "vertical"
                 size_hint_x: 0.5
+
+        BoxLayout:
+            orientation: "horizontal"
+            size_hint_y: 0.2 
+
+            Button:
+                text: "Play Again"
+                font_size: "32sp"
+                size_hint_x: 0.5
+                background_color: 0, 1, 0, 1
+                
+                on_press: app.reset_game()
             
-        Button:
-            text: "Play Again"
-            font_size: "32sp"
-            size_hint_y: 0.2
-            on_press: app.reset_game()
+            Button:
+                text: "Quit"
+                font_size: "32sp"
+                size_hint_x: 0.5
+                background_color: 1, 0, 0, 1
+
+                on_press: app.stop() 
 
 
 # ----------------- MODULAR GAME WIDGETS -----------------
@@ -131,7 +146,7 @@ ScreenManager:
     Button:
         text: root.val
         font_size: "32sp"
-        on_press: app.check_sequence_click(root.val, root)
+        on_press: app.check_answer(root.val, root)
 
 
 <FooterWidget>:
