@@ -15,6 +15,7 @@ RootWidget:
 
         Label:
             id: status_text
+            text: "Press start to begin"
             
 
     FooterWidget:
@@ -56,13 +57,11 @@ RootWidget:
         on_press: app.toggle_stopwatch()
 
 <SequenceItem>:
-    # We add some padding so the squares have gaps between them
     padding: 10
     
     Button:
-        # The button reads the property from the SequenceItem (root)
         text: str(root.val)
         font_size: "32sp"
         
-        # When clicked, it sends its number to the main app to check
+        # when clicked sends its value to main app to check validity
         on_press: app.check_sequence_click(root.val, root)
