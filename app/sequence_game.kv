@@ -1,28 +1,92 @@
 #:kivy 2.3.1
 
-RootWidget:
-    orientation: "vertical"
-    padding: 20
-    spacing: 20
+# The Root is now the ScreenManager
+ScreenManager:
+    StartScreen:
+        name: "start"
+    GameScreen:
+        name: "game"
+    VictoryScreen:
+        name: "victory"
 
-    # Your modular widgets are assembled here
-    HeaderWidget:
-        size_hint_y: 0.2
-
-    ContentWidget:
-        id: content_area
-        size_hint_y: 0.6
+# ----------------- SCREEN 1: START SCREEN -----------------
+<StartScreen>:
+    BoxLayout:
+        orientation: "vertical"
+        padding: 50
+        spacing: 20
 
         Label:
-            id: status_text
-            text: "Press start to begin"
+            text: "Sequence Master"
+            font_size: "48sp"
+            bold: True
+            size_hint_y: 0.4
+
+        Label:
+            text: "Rules:\n1. Click the items in ascending order.\n2. Do it as fast as you can!\n3. Beat all levels to win."
+            font_size: "24sp"
+            halign: "center"
+            size_hint_y: 0.4
+
+        Button:
+            text: "Begin Game"
+            font_size: "32sp"
+            size_hint_y: 0.2
+            on_press: app.start_game()
+
+# ----------------- SCREEN 2: GAME SCREEN -----------------
+<GameScreen>:
+    BoxLayout:
+        orientation: "vertical"
+        padding: 20
+        spacing: 20
+
+        HeaderWidget:
+            size_hint_y: 0.2
+
+        ContentWidget:
+            # We assign the ID here so Python can find it via the Screen!
+            id: content_area
+            size_hint_y: 0.6
+
+        FooterWidget:
+            size_hint_y: 0.2
+
+
+# ----------------- SCREEN 3: VICTORY SCREEN -----------------
+<VictoryScreen>:
+    BoxLayout:
+        orientation: "vertical"
+        padding: 50
+        spacing: 20
+
+        Label:
+            text: "YOU WIN!"
+            font_size: "48sp"
+            color: 0, 1, 0, 1  # Green text
+            size_hint_y: 0.2
             
+        BoxLayout:
+            size_hint_y: 0.6
 
-    FooterWidget:
-        size_hint_y: 0.2
+            BoxLayout:
+                id: challenge_times
+                orientation: "vertical"
+                size_hint_x: 0.5
 
-# --- WIDGET DEFINITIONS ---
+            BoxLayout:
+                id: victory_stats
+                orientation: "vertical"
+                size_hint_x: 0.5
+            
+        Button:
+            text: "Play Again"
+            font_size: "32sp"
+            size_hint_y: 0.2
+            on_press: app.reset_game()
 
+
+# ----------------- MODULAR GAME WIDGETS -----------------
 <HeaderWidget>:
     orientation: "horizontal"
     spacing: 10
@@ -33,35 +97,47 @@ RootWidget:
         value: app.progress_value
 
     Label:
-        size_hint_x: 0.5
-        text: "Sequence Game"
-        font_size: "24sp"
+        size_hint_x: 0.25
+        # Dynamic Level Label added here!
+        text: app.level_text
+        font_size: "20sp"
 
     Label:
         size_hint_x: 0.25
         text: app.stopwatch_text
         font_size: "24sp"
 
+
 <ContentWidget>:
-    orientation: "horizontal"
-    spacing: 10
+    orientation: "vertical"
+    spacing: 20
+
+    Label:
+        text: app.status_text
+        font_size: "32sp"
+        halign: "center"
+        size_hint_y: 0.3
+
+    BoxLayout:
+        id: sequence_row
+        orientation: "horizontal"
+        size_hint_y: 0.7
+        spacing: 20
+        padding: [20, 0, 20, 0]
+
+
+<SequenceItem>:
+    padding: 10
+    Button:
+        text: root.val
+        font_size: "32sp"
+        on_press: app.check_sequence_click(root.val, root)
+
 
 <FooterWidget>:
     orientation: "horizontal"
 
     Button:
-        # Looks entirely to Python for what this text should be
         text: app.toggle_text  
         font_size: "24sp"
-        # Purely triggers the Python function, no inline logic
         on_press: app.toggle_stopwatch()
-
-<SequenceItem>:
-    padding: 10
-    
-    Button:
-        text: str(root.val)
-        font_size: "32sp"
-        
-        # when clicked sends its value to main app to check validity
-        on_press: app.check_sequence_click(root.val, root)
