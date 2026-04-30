@@ -10,7 +10,7 @@ from sequence_challenges import NumberChallenge, ReverseNumberChallenge, LetterC
 
 # -------------- UI WIDGETS & SCREENS --------------------------
 
-# We define the three screens. They inherit from Kivy's Screen class.
+# Set up the main screens for the app
 class StartScreen(Screen):
     pass
 
@@ -20,7 +20,7 @@ class GameScreen(Screen):
 class VictoryScreen(Screen):
     pass
 
-# The modular widgets that live inside the GameScreen
+# Custom layout containers used in the GameScreen
 class HeaderWidget(BoxLayout):
     pass
 
@@ -54,6 +54,7 @@ class MainApp(App):
         self.current_level = 1
         self.expected_sequence = []
         
+        # Add new challenges to this list to expand the game
         self.challenges = [
             NumberChallenge(),
             LetterChallenge(),
@@ -63,7 +64,6 @@ class MainApp(App):
     #--------------------------- STATE ROUTING --------------------------------
     
     def start_game(self):
-        """Called from the Start Screen to boot up the game."""
         self.current_level = 1
         self.progress_value = 0
         self.challenge_times = []
@@ -71,40 +71,43 @@ class MainApp(App):
         self.stopwatch_text = "00:00.0"
         self.wrong_guesses = 0
         
-        # Switch the ScreenManager to the game screen
         self.root.current = "game"
         self.load_challenge()
         
-        # Automatically start the timer
+        # Start the timer if it isn't running
         if not self.running:
             self.toggle_stopwatch()
 
     def reset_game(self):
-        """Called from the Victory Screen to reset everything to default."""
         self.root.current = "start"
         self.time_elapsed = 0.0
         self.stopwatch_text = "00:00.0"
         self.progress_value = 0
 
-    #--------------------------- STOPWATCH & INTERMISSION ----------------------
+    def start_next_round(self):
+        self.in_intermission = False
+        self.current_level += 1
+        self.time_elapsed = 0.0 
+
+        # checks if the game is won 
+        if self.current_level > len(self.challenges):
+            self.open_victory_screen()
+            return
+            
+        self.load_challenge()
+        
+        # turns the stopwatch back on
+        self.toggle_stopwatch()
+
+    def handle_footer_button(self):
+        if self.in_intermission:
+            self.start_next_round()
+        else:
+            self.toggle_stopwatch()
+
+    #--------------------------- STOPWATCH LOGIC ----------------------
 
     def toggle_stopwatch(self):
-        # Scenario A: We are in an intermission. The user clicked "Next Round".
-        if self.in_intermission:
-            self.in_intermission = False
-            self.current_level += 1
-            
-            if self.current_level > len(self.challenges):
-                self.open_victory_screen()
-                return
-                
-            self.load_challenge()
-            self.clock_event = Clock.schedule_interval(self.update_stopwatch, 0.1)
-            self.toggle_text = "Pause"
-            self.running = True
-            return
-
-        # Scenario B & C: Normal Start/Pause
         if self.running:
             if self.clock_event:
                 self.clock_event.cancel()
@@ -122,15 +125,13 @@ class MainApp(App):
         tenths = int((self.time_elapsed * 10) % 10)
         self.stopwatch_text = f"{minutes:02d}:{seconds:02d}.{tenths}"
 
-
     # ------------------------------ GAME LOGIC ---------------------------------
 
     def load_challenge(self):
-        # We drill down one level deeper into the ContentWidget's IDs!
+        # Find the sequence row inside the content area so we can add the buttons
         content = self.root.get_screen("game").ids.content_area.ids.sequence_row
         content.clear_widgets()
 
-        # checks if game has been won
         if self.current_level > len(self.challenges):
             self.open_victory_screen()
             return
@@ -150,64 +151,59 @@ class MainApp(App):
         self.level_text = f"Level: {self.current_level}"
 
     def check_answer(self, clicked_value, widget_instance):
+        # Ignore clicks if the game is paused or between rounds
         if not self.running or not self.expected_sequence or self.in_intermission:
             return 
 
+        # Handle wrong guesses
         if clicked_value != self.expected_sequence[0]:
             self.wrong_guesses += 1
             self.status_text = f"{clicked_value} was incorrect! Try again."
             return
 
+        # Handle correct guesses
         self.expected_sequence.pop(0)
         widget_instance.opacity = 0
         widget_instance.disabled = True
         self.status_text = f"{clicked_value} was correct!"
         
-        # proceeds when the user has finished the sequence
+        # Check if they just finished the entire sequence
         if len(self.expected_sequence) == 0:
             self.challenge_times.append(self.time_elapsed)
             self.progress_value += (100 / len(self.challenges))
             
-            # Reset elapsed time behind the scenes for the next level
-            self.time_elapsed = 0.0 
-            
-            # 1. Pause the stopwatch
+            # Pause the stopwatch
             if self.running:
-                self.clock_event.cancel()
-                self.running = False
+                self.toggle_stopwatch()
             
-            # 2. Trigger Intermission State
+            # Setup the intermission break
             self.in_intermission = True
             self.status_text = "Round Complete!\nTake a breath."
             self.toggle_text = "Next Round"
             
-            # 3. Clear ONLY the sequence row so the status text stays visible!
+            # Wipe the buttons off the screen
             self.root.get_screen("game").ids.content_area.ids.sequence_row.clear_widgets()
 
     def open_victory_screen(self):
-        # Ensure clock is stopped
         if self.running:
-            self.clock_event.cancel()
-            self.running = False
+            self.toggle_stopwatch()
             
-        # Switch to victory screen
         self.root.current = "victory"
         
-        # Populate the victory data
         challenge_times_ui = self.root.get_screen("victory").ids.challenge_times
         challenge_times_ui.clear_widgets()
         
         for i, time in enumerate(self.challenge_times, 1):
-            lbl = Label(text=f"Challenge {i} Time: {time:.2f} seconds", font_size="20sp")
+            lbl = Label(text=f"Challenge {i} Time: {time:.2f} seconds", font_size="20sp", color=(0,0,0,1))
             challenge_times_ui.add_widget(lbl)
-        challenge_times_ui.add_widget(Label(text=f"Final score: {(sum(self.challenge_times) * 100):.0f}", font_size="20sp"))
+            
+        challenge_times_ui.add_widget(Label(text=f"Final score: {(sum(self.challenge_times) * 100):.0f}", font_size="20sp", color=(0,0,0,1)))
 
-        victory_stats_ui =  self.root.get_screen("victory").ids.victory_stats
+        victory_stats_ui = self.root.get_screen("victory").ids.victory_stats
         victory_stats_ui.clear_widgets()
-        victory_stats_ui.add_widget(Label(text=f"Wrong guesses: {self.wrong_guesses}", font_size="20sp"))
+        victory_stats_ui.add_widget(Label(text=f"Wrong guesses: {self.wrong_guesses}", font_size="20sp", color=(0,0,0,1)))
 
     def build(self):
-        # We changed the name so it doesn't double-load (like we fixed earlier!)
         return Builder.load_file("sequence_game.kv")
 
 if __name__ == '__main__':

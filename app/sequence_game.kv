@@ -1,6 +1,5 @@
 #:kivy 2.3.1
 
-# The Root is now the ScreenManager
 ScreenManager:
     StartScreen:
         name: "start"
@@ -11,6 +10,14 @@ ScreenManager:
 
 # ----------------- SCREEN 1: START SCREEN -----------------
 <StartScreen>:
+    # Add a pastel yellow background
+    canvas.before:
+        Color:
+            rgba: 1, 0.98, 0.8, 1  
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
     BoxLayout:
         orientation: "vertical"
         padding: 50
@@ -20,11 +27,13 @@ ScreenManager:
             text: "Sequence Master"
             font_size: "48sp"
             bold: True
+            color: 0, 0, 0, 1  # Black text
             size_hint_y: 0.4
 
         Label:
             text: "Rules:\n1. Click the items in the correct order.\n2. Do it as fast as you can!\n3. Beat all levels to win.\n4. Lower scores are better."
             font_size: "24sp"
+            color: 0, 0, 0, 1
             halign: "center"
             size_hint_y: 0.4
 
@@ -37,6 +46,14 @@ ScreenManager:
 
 # ----------------- SCREEN 2: GAME SCREEN -----------------
 <GameScreen>:
+    # Add a pastel blue background
+    canvas.before:
+        Color:
+            rgba: 0.85, 0.93, 1, 1 
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
     BoxLayout:
         orientation: "vertical"
         padding: 20
@@ -46,7 +63,6 @@ ScreenManager:
             size_hint_y: 0.2
 
         ContentWidget:
-            # We assign the ID here so Python can find it via the Screen!
             id: content_area
             size_hint_y: 0.6
 
@@ -56,6 +72,14 @@ ScreenManager:
 
 # ----------------- SCREEN 3: VICTORY SCREEN -----------------
 <VictoryScreen>:
+    # Add a pastel green background
+    canvas.before:
+        Color:
+            rgba: 0.88, 1, 0.88, 1  
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
     BoxLayout:
         orientation: "vertical"
         padding: 50
@@ -64,7 +88,8 @@ ScreenManager:
         Label:
             text: "YOU WIN!"
             font_size: "48sp"
-            color: 0, 1, 0, 1  # Green text
+            color: 0, 0.6, 0, 1  # Dark Green text
+            bold: True
             size_hint_y: 0.2
             
         BoxLayout:
@@ -83,13 +108,13 @@ ScreenManager:
         BoxLayout:
             orientation: "horizontal"
             size_hint_y: 0.2 
+            spacing: 20
 
             Button:
                 text: "Play Again"
                 font_size: "32sp"
                 size_hint_x: 0.5
                 background_color: 0, 1, 0, 1
-                
                 on_press: app.reset_game()
             
             Button:
@@ -97,7 +122,6 @@ ScreenManager:
                 font_size: "32sp"
                 size_hint_x: 0.5
                 background_color: 1, 0, 0, 1
-
                 on_press: app.stop() 
 
 
@@ -113,13 +137,14 @@ ScreenManager:
 
     Label:
         size_hint_x: 0.25
-        # Dynamic Level Label added here!
         text: app.level_text
+        color: 0, 0, 0, 1
         font_size: "20sp"
 
     Label:
         size_hint_x: 0.25
         text: app.stopwatch_text
+        color: 0, 0, 0, 1
         font_size: "24sp"
 
 
@@ -129,6 +154,7 @@ ScreenManager:
 
     Label:
         text: app.status_text
+        color: 0, 0, 0, 1
         font_size: "32sp"
         halign: "center"
         size_hint_y: 0.3
@@ -155,4 +181,5 @@ ScreenManager:
     Button:
         text: app.toggle_text  
         font_size: "24sp"
-        on_press: app.toggle_stopwatch()
+        # Calls the new traffic-cop function instead of toggling the stopwatch directly
+        on_press: app.handle_footer_button()
