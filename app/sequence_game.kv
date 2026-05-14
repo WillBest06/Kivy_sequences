@@ -8,12 +8,10 @@ ScreenManager:
     VictoryScreen:
         name: "victory"
 
-# ----------------- SCREEN 1: START SCREEN -----------------
 <StartScreen>:
-    # Add a pastel yellow background
     canvas.before:
         Color:
-            rgba: 1, 0.98, 0.8, 1  
+            rgba: 1, 0.98, 0.8, 1 # pastel yellow
         Rectangle:
             pos: self.pos
             size: self.size
@@ -27,7 +25,7 @@ ScreenManager:
             text: "Sequence Master"
             font_size: "48sp"
             bold: True
-            color: 0, 0, 0, 1  # Black text
+            color: 0, 0, 0, 1 
             size_hint_y: 0.4
 
         Label:
@@ -44,12 +42,10 @@ ScreenManager:
             background_color: 0, 1, 0, 1
             on_press: app.start_game()
 
-# ----------------- SCREEN 2: GAME SCREEN -----------------
 <GameScreen>:
-    # Add a pastel blue background
     canvas.before:
         Color:
-            rgba: 0.85, 0.93, 1, 1 
+            rgba: 0.85, 0.93, 1, 1 # pastel blue
         Rectangle:
             pos: self.pos
             size: self.size
@@ -70,12 +66,10 @@ ScreenManager:
             size_hint_y: 0.2
 
 
-# ----------------- SCREEN 3: VICTORY SCREEN -----------------
 <VictoryScreen>:
-    # Add a pastel green background
     canvas.before:
         Color:
-            rgba: 0.88, 1, 0.88, 1  
+            rgba: 0.88, 1, 0.88, 1 # pastel green
         Rectangle:
             pos: self.pos
             size: self.size
@@ -88,7 +82,7 @@ ScreenManager:
         Label:
             text: "YOU WIN!"
             font_size: "48sp"
-            color: 0, 0.6, 0, 1  # Dark Green text
+            color: 0, 0.6, 0, 1  # dark green
             bold: True
             size_hint_y: 0.2
             
@@ -125,7 +119,7 @@ ScreenManager:
                 on_press: app.stop() 
 
 
-# ----------------- MODULAR GAME WIDGETS -----------------
+# ----------------- Game Widgets -----------------
 <HeaderWidget>:
     orientation: "horizontal"
     spacing: 10
@@ -181,5 +175,4 @@ ScreenManager:
     Button:
         text: app.toggle_text  
         font_size: "24sp"
-        # Calls the new traffic-cop function instead of toggling the stopwatch directly
         on_press: app.handle_footer_button()

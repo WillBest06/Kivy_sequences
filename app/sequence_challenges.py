@@ -1,5 +1,6 @@
 import random
 
+# base class
 class SequenceChallenge:
     def __init__(self, prompt_text):
         self.prompt_text = prompt_text
@@ -7,6 +8,7 @@ class SequenceChallenge:
     def generate_sequence(self):
         raise NotImplementedError("Subclasses need their own generate_sequence function")
 
+# ------- child classes ----------
 class NumberChallenge(SequenceChallenge):
     def __init__(self):
         super().__init__("Click the numbers in ascending order!")
