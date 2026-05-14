@@ -6,7 +6,7 @@ from kivy.clock import Clock
 from kivy.properties import StringProperty, NumericProperty, ListProperty
 from kivy.lang import Builder
 import random
-from sequence_challenges import NumberChallenge, ReverseNumberChallenge, LetterChallenge
+from sequence_challenges import *
 
 # -------------- UI Widgets/screens --------------------------
 
@@ -55,7 +55,8 @@ class MainApp(App):
         self.challenges = [
             NumberChallenge(),
             LetterChallenge(),
-            ReverseNumberChallenge()
+            ReverseNumberChallenge(),
+            NegativeNumberChallenge()
         ]
 
     #--------------------------- game state stuff  --------------------------------

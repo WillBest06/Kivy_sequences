@@ -33,4 +33,15 @@ class ReverseNumberChallenge(SequenceChallenge):
         sequence = [str(i) for i in range(start_num, start_num + 5)]
         sequence.reverse()
         return sequence
-        
+
+class NegativeNumberChallenge(SequenceChallenge):
+    def __init__(self):
+        super().__init__("Click the negative numbers from biggest to smallest (think carefully)!")
+
+    def generate_sequence(self):
+        start_num = random.randint(1, 20)
+        start_num *= -1
+        sequence = [str(i) for i in range(start_num - 5, start_num)]
+        sequence.reverse()
+        print("\n", sequence)
+        return sequence     
